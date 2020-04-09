@@ -1,5 +1,5 @@
 print("\n===================================================================================")
-print("This is MicroQiskitCpp: an extremely minimal version of Qiskit, implemented in C++.")
+print("This is MicroQiskitLua: an extremely minimal version of Qiskit, implemented in Lua.")
 print("\nFor the standard version of Qiskit, see qiskit.org. To run your quantum programs\non real quantum hardware, see quantum-computing.ibm.com.")
 print("===================================================================================\n")
 

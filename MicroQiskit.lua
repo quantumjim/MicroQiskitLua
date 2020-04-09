@@ -89,10 +89,9 @@ function simulate (qc, get, shots)
   function as_bits(num,bits)
     -- returns num converted to a bitstring of length bits
     -- adapted from https://stackoverflow.com/a/9080080/1225661
-    bits = bits or math.max(1, select(2, math.frexp(num)))
     local bitstring = {}
     for index = bits, 1, -1 do
-        b = math.fmod(num, 2)
+        b = num - math.floor(num/2)*2
         num = math.floor((num - b) / 2)
         bitstring[index] = b
     end
