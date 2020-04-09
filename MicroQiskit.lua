@@ -24,30 +24,32 @@ function QuantumCircuit ()
     qc.data = {{'init',ket_copy}}
   end
 
-  function qc.add (qc2)
+  function qc.add_circuit (qc2)
+    qc._n = math.max(qc._n,qc2._n)
+    qc._m = math.max(qc._m,qc2._m)
     for g, gate in pairs(qc2.data) do
-      table.insert( qc.data, gate )    
+      qc.data[#qc.data+1] = ( gate )    
     end
   end
       
   function qc.x (q)
-    table.insert( qc.data, {'x',q} )
+    qc.data[#qc.data+1] = ( {'x',q} )
   end
 
   function qc.rx (theta,q)
-    table.insert( qc.data, {'rx',theta,q} )
+    qc.data[#qc.data+1] = ( {'rx',theta,q} )
   end
 
   function qc.h (q)
-    table.insert( qc.data, {'h',q} )
+    qc.data[#qc.data+1] = ( {'h',q} )
   end
 
   function qc.cx (s,t)
-    table.insert( qc.data, {'cx',s,t} )
+    qc.data[#qc.data+1] = ( {'cx',s,t} )
   end
 
   function qc.measure (q,b)
-    table.insert( qc.data, {'m',q,b} )
+    qc.data[#qc.data+1] = ( {'m',q,b} )
   end
 
   function qc.rz (theta,q)
