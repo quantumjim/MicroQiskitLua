@@ -1,6 +1,25 @@
-math.randomseed(os.time())
+pico-8 cartridge // http://www.pico-8.com
+version 18
+__lua__
 
-function QuantumCircuit ()
+-- Custom math table, to replace that from standard Lua
+math = {}
+math.pi = 3.14159
+math.max = max
+math.sqrt = sqrt
+math.floor = flr
+function math.random()
+  return rnd(1)
+end
+function math.cos(theta)
+  return cos(theta/(2*math.pi))
+end
+function math.sin(theta)
+  return -sin(theta/(2*math.pi))
+end
+
+
+function quantumcircuit ()
 
   local qc = {}
 
@@ -12,6 +31,7 @@ function QuantumCircuit ()
 
   qc.data = {}
 
+  --Removable
   function qc.initialize (ket)
     ket_copy = {}
     for j, amp in pairs(ket) do
@@ -24,6 +44,7 @@ function QuantumCircuit ()
     qc.data = {{'init',ket_copy}}
   end
 
+  --Removable
   function qc.add_circuit (qc2)
     qc._n = math.max(qc._n,qc2._n)
     qc._m = math.max(qc._m,qc2._m)
@@ -31,15 +52,12 @@ function QuantumCircuit ()
       qc.data[#qc.data+1] = ( gate )    
     end
   end
-      
-  function qc.x (q)
-    qc.data[#qc.data+1] = ( {'x',q} )
-  end
 
   function qc.rx (theta,q)
     qc.data[#qc.data+1] = ( {'rx',theta,q} )
   end
 
+  --Removable: Note that qc.rz depends on this
   function qc.h (q)
     qc.data[#qc.data+1] = ( {'h',q} )
   end
@@ -52,22 +70,31 @@ function QuantumCircuit ()
     qc.data[#qc.data+1] = ( {'m',q,b} )
   end
 
+  --Removable: Note that qc.r depends on this
   function qc.rz (theta,q)
     qc.h(q)
     qc.rx(theta,q)
     qc.h(q)
   end
-
+  
+  --Removable
   function qc.ry (theta,q)
     qc.rx(math.pi/2,q)
     qc.rz(theta,q)
     qc.rx(-math.pi/2,q)
   end
 
+  --Removable: Note that qc.z and qc.y depend on this
+  function qc.x (q)
+    qc.rx(math.pi,q)
+  end
+
+  --Removable
   function qc.z (q)
     qc.rz(math.pi,q)
   end
 
+  --Removable
   function qc.y (q)
     qc.z(q)
     qc.x(q)
@@ -76,8 +103,6 @@ function QuantumCircuit ()
   return qc
 
 end
-
-
 
 
 function simulate (qc, get, shots)
@@ -97,7 +122,6 @@ function simulate (qc, get, shots)
     end
     return bitstring
   end
-
 
   ket = {}
   for j=1,2^qc._n do
@@ -119,7 +143,7 @@ function simulate (qc, get, shots)
 
       output_map[gate[3]] = gate[2]
 
-    elseif gate[1]=="x" or gate[1]=="rx" or gate[1]=="h" then
+    elseif gate[1]=="rx" or gate[1]=="h" then
 
       j = gate[#gate]
 
@@ -130,9 +154,6 @@ function simulate (qc, get, shots)
 
           e = {{ket[b1][1],ket[b1][2]},{ket[b2][1],ket[b2][2]}}
 
-          if gate[1]=="x" then
-            ket[b1] = e[2]
-            ket[b2] = e[1]
           elseif gate[1]=="rx" then
             theta = gate[2]
             ket[b1][1] = e[1][1]*math.cos(theta/2)+e[2][2]*math.sin(theta/2)
@@ -181,6 +202,10 @@ function simulate (qc, get, shots)
 
   if get=="statevector" then
     return ket
+
+    --Removable: if memory and/or counts not needed
+    --code required for memory and counts begins here
+    --the above `if` statement would need to be ended
   else
 
     probs = {}
@@ -212,25 +237,66 @@ function simulate (qc, get, shots)
     if get=="memory" then
       return m
 
-    elseif get=="counts" then
+    --code required for memory ends here
+    --the above `if` statement would need to be ended
+
+    if get=="counts" then
       c = {}
       for s=1,shots do
         if c[m[s]] then
-          c[m[s]] = c[m[s]] + 1
+          c[m[s]] += 1
         else
           if m[s] then
             c[m[s]] = 1
           else
-            print(s)
+            -- what's this all about?
+            if c["error"] then
+              c["error"] += 1 
+            else
+              c["error"] = 1 
+            end
           end
         end
       end
       return c
-
     end
-
   end
+   --code required for counts ends here
 
-  
+end
 
+
+
+-- The following is not part of MicroQiskit
+-- It is an example of it in use
+
+--initialize a circuit with two qubits
+local qc = quantumcircuit()
+qc.set_registers(2)
+
+--add the gates to create a bell pair
+qc.h(0)
+qc.cx(0,1)
+
+--initialize another circuit with two qubits and two output bits
+local meas = quantumcircuit()
+meas.set_registers(2,2)
+--add the measurements
+meas.measure(0,0)
+meas.measure(1,1)
+
+--add the measurement circuit to the end of the original circuit
+qc.add_circuit(meas)
+
+--simulate the circuit and get a counts result
+result = simulate(qc,"counts")
+
+--print this to screen
+print("\nthe counts are\n")
+for string, counts in pairs(result) do
+  if string != "error" then
+    print(counts)
+    print("samples output")
+    print(string)
+  end
 end
