@@ -176,9 +176,6 @@ function simulate (qc, get, shots)
 
     end
 
-  end
-
-
   if get=="statevector" then
     return ket
   else
@@ -188,42 +185,59 @@ function simulate (qc, get, shots)
       probs[j] = amp[1]^2 + amp[2]^2
     end
 
-    m = {}
-    for s=1,shots do
-      cumu = 0
-      un = true
-      r = math.random()
-      for j,p in pairs(probs) do
-        cumu = cumu + p
-        if r<cumu and un then
-          raw_out = as_bits(j-1,qc._n)
-          out = ""
-          for b=0,qc._m-1 do
-            if output_map[b] then
-              out = raw_out[qc._n-output_map[b]]..out
-            end
-          end
-          m[s] = out
-          un = false
-        end
-      end
-    end
+    if get=="fast counts" then
 
-    if get=="memory" then
-      return m
-
-    elseif get=="counts" then
       c = {}
-      for s=1,shots do
-        if c[m[s]] then
-          c[m[s]] = c[m[s]] + 1
-        else
-          c[m[s]] = 1
-        end
+      for j,p in pairs(probs) do
+        c[j] = probs[j]*shots
       end
       return c
 
+    else
+
+      m = {}
+      for s=1,shots do
+        cumu = 0
+        un = true
+        r = math.random()
+        for j,p in pairs(probs) do
+          cumu = cumu + p
+          if r<cumu and un then
+            raw_out = as_bits(j-1,qc._n)
+            out = ""
+            for b=0,qc._m-1 do
+              if output_map[b] then
+                out = raw_out[qc._n-output_map[b]]..out
+              end
+            end
+            m[s] = out
+            un = false
+          end
+        end
+      end
+
+      if get=="memory" then
+        return m
+
+      elseif get=="counts" then
+        c = {}
+        for s=1,shots do
+          if c[m[s]] then
+            c[m[s]] = c[m[s]] + 1
+          else
+            c[m[s]] = 1
+          end
+        end
+        return c
+
+      end
+
     end
+
+  end
+
+
+
 
   end
 

@@ -27,7 +27,7 @@ meas.measure(1,1)
 qc.add_circuit(meas)
 
 --simulate the circuit and get a counts result
-result = simulate(qc,"counts")
+result = simulate(qc,"fast counts")
 
 --print this to screen
 print("\nThe counts are\n")
