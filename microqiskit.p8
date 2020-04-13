@@ -1,7 +1,3 @@
-pico-8 cartridge // http://www.pico-8.com
-version 18
-__lua__
-
 -- Custom math table, to replace that from standard Lua
 math = {}
 math.pi = 3.14159
@@ -154,7 +150,7 @@ function simulate (qc, get, shots)
 
           e = {{ket[b1][1],ket[b1][2]},{ket[b2][1],ket[b2][2]}}
 
-          elseif gate[1]=="rx" then
+          if gate[1]=="rx" then
             theta = gate[2]
             ket[b1][1] = e[1][1]*math.cos(theta/2)+e[2][2]*math.sin(theta/2)
             ket[b1][2] = e[1][2]*math.cos(theta/2)-e[2][1]*math.sin(theta/2)
@@ -236,9 +232,9 @@ function simulate (qc, get, shots)
 
     if get=="memory" then
       return m
+    end
 
     --code required for memory ends here
-    --the above `if` statement would need to be ended
 
     if get=="counts" then
       c = {}
@@ -260,43 +256,8 @@ function simulate (qc, get, shots)
       end
       return c
     end
+
   end
    --code required for counts ends here
 
-end
-
-
-
--- The following is not part of MicroQiskit
--- It is an example of it in use
-
---initialize a circuit with two qubits
-local qc = quantumcircuit()
-qc.set_registers(2)
-
---add the gates to create a bell pair
-qc.h(0)
-qc.cx(0,1)
-
---initialize another circuit with two qubits and two output bits
-local meas = quantumcircuit()
-meas.set_registers(2,2)
---add the measurements
-meas.measure(0,0)
-meas.measure(1,1)
-
---add the measurement circuit to the end of the original circuit
-qc.add_circuit(meas)
-
---simulate the circuit and get a counts result
-result = simulate(qc,"counts")
-
---print this to screen
-print("\nthe counts are\n")
-for string, counts in pairs(result) do
-  if string != "error" then
-    print(counts)
-    print("samples output")
-    print(string)
-  end
 end

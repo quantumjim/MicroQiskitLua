@@ -218,11 +218,7 @@ function simulate (qc, get, shots)
         if c[m[s]] then
           c[m[s]] = c[m[s]] + 1
         else
-          if m[s] then
-            c[m[s]] = 1
-          else
-            print(s)
-          end
+          c[m[s]] = 1
         end
       end
       return c
