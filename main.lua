@@ -27,7 +27,7 @@ meas.measure(1,1)
 qc.add_circuit(meas)
 
 --simulate the circuit and get a counts result
-result = simulate(qc,"fast counts")
+result = simulate(qc,"counts")
 
 --print this to screen
 print("\nThe counts are\n")
@@ -60,4 +60,23 @@ print("\nThe statevector is\n")
 result2 = simulate(qc2,"statevector")
 for index, amp in pairs(result2) do
   print("(",amp[1],")+i(",amp[2],")")
+end
+
+print("\nFinally a ")
+
+local qc3 = QuantumCircuit()
+qc3.set_registers(1,1)
+qc3.rx(pi/4,0)
+qc3.measure(0,0)
+
+print("\nThe counts are\n")
+result3 = simulate(qc3,"counts")
+for string, counts in pairs(result3) do
+  print("Counts for",string,"=",counts)
+end
+
+print("\nThe counts are\n")
+result3b = simulate(qc3,"fast counts")
+for string, counts in pairs(result3b) do
+  print("Counts for",string,"=",counts)
 end

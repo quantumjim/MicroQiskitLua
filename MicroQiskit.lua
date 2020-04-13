@@ -176,6 +176,8 @@ function simulate (qc, get, shots)
 
     end
 
+  end
+
   if get=="statevector" then
     return ket
   else
@@ -235,12 +237,5 @@ function simulate (qc, get, shots)
     end
 
   end
-
-
-
-
-  end
-
-  
 
 end
