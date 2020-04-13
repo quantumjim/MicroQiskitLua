@@ -86,7 +86,7 @@ function simulate (qc, get, shots)
     shots = 1024
   end
 
-  function as_bits(num,bits)
+  function as_bits (num,bits)
     -- returns num converted to a bitstring of length bits
     -- adapted from https://stackoverflow.com/a/9080080/1225661
     local bitstring = {}
@@ -96,6 +96,17 @@ function simulate (qc, get, shots)
         bitstring[index] = b
     end
     return bitstring
+  end
+
+  function get_out (j)
+    raw_out = as_bits(j-1,qc._n)
+    out = ""
+    for b=0,qc._m-1 do
+      if output_map[b] then
+        out = raw_out[qc._n-output_map[b]]..out
+      end
+    end
+    return out
   end
 
 
@@ -191,7 +202,14 @@ function simulate (qc, get, shots)
 
       c = {}
       for j,p in pairs(probs) do
-        c[j] = probs[j]*shots
+        out = get_out(j)
+        if c[out] then
+          c[out] = c[out] + probs[j]*shots
+        else
+          if out then -- in case of pico8 weirdness
+            c[out] = probs[j]*shots
+          end
+        end
       end
       return c
 
@@ -205,14 +223,7 @@ function simulate (qc, get, shots)
         for j,p in pairs(probs) do
           cumu = cumu + p
           if r<cumu and un then
-            raw_out = as_bits(j-1,qc._n)
-            out = ""
-            for b=0,qc._m-1 do
-              if output_map[b] then
-                out = raw_out[qc._n-output_map[b]]..out
-              end
-            end
-            m[s] = out
+            m[s] = get_out(j)
             un = false
           end
         end
@@ -227,7 +238,15 @@ function simulate (qc, get, shots)
           if c[m[s]] then
             c[m[s]] = c[m[s]] + 1
           else
-            c[m[s]] = 1
+            if m[s] then -- in case of pico8 weirdness
+              c[m[s]] = 1
+            else
+              if c["error"] then
+                c["error"] = c["error"]+1
+              else
+                c["error"] = 1
+              end
+            end
           end
         end
         return c

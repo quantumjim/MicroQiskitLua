@@ -62,7 +62,7 @@ for index, amp in pairs(result2) do
   print("(",amp[1],")+i(",amp[2],")")
 end
 
-print("\nFinally a ")
+print("\nFinally a single qubit, biased towards 0")
 
 local qc3 = QuantumCircuit()
 qc3.set_registers(1,1)
@@ -75,7 +75,7 @@ for string, counts in pairs(result3) do
   print("Counts for",string,"=",counts)
 end
 
-print("\nThe counts are\n")
+print("\nWe can also get the expectation value of the counts\n")
 result3b = simulate(qc3,"fast counts")
 for string, counts in pairs(result3b) do
   print("Counts for",string,"=",counts)
