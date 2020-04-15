@@ -1,3 +1,7 @@
+-- This code is part of Qiskit.
+--
+-- Copyright IBM 2020
+
 math.randomseed(os.time())
 
 function QuantumCircuit ()

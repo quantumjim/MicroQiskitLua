@@ -1,3 +1,7 @@
+-- This code is part of Qiskit.
+--
+-- Copyright IBM 2020
+
 print("\n===================================================================================")
 print("This is MicroQiskitLua: an extremely minimal version of Qiskit, implemented in Lua.")
 print("\nFor the standard version of Qiskit, see qiskit.org. To run your quantum programs\non real quantum hardware, see quantum-computing.ibm.com.")
@@ -62,7 +66,7 @@ for index, amp in pairs(result2) do
   print("(",amp[1],")+i(",amp[2],")")
 end
 
-print("\nFinally a single qubit, biased towards 0")
+print("\nNext, a single qubit, biased towards 0")
 
 local qc3 = QuantumCircuit()
 qc3.set_registers(1,1)
@@ -79,4 +83,28 @@ print("\nWe can also get the expectation value of the counts\n")
 result3b = simulate(qc3,"fast counts")
 for string, counts in pairs(result3b) do
   print("Counts for",string,"=",counts)
+end
+
+print("\nFinally, we'll look at how to only measure a subset of the qubits, and measure them in a different order.\n")
+
+-- 5 qubits and 4 bits of output
+-- we put 1s on qubits 1, 3 and 4
+local qc4 = QuantumCircuit()
+qc4.set_registers(5,4)
+qc4.x(1)
+qc4.x(3)
+qc4.x(4)
+
+-- qubits 1, 3 and 4 (the 1s) are read out to bits 0, 1 and 2
+-- qubit 0 is read out to bit 3
+qc4.measure(1,0)
+qc4.measure(3,1)
+qc4.measure(4,2)
+qc4.measure(0,3)
+
+print("Here's the bit string that comes out.\n")
+
+result4 = simulate(qc4,"counts",1)
+for string, counts in pairs(result4) do
+  print(string)
 end
